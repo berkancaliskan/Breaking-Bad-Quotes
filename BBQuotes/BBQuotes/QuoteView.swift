@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct QuoteView: View {
-    let vm = QuoteViewModel()
+    @State private var vm = QuoteViewModel()
     let isBreakingBadTab: Bool
     
     var body: some View {
@@ -18,14 +18,15 @@ struct QuoteView: View {
                     .resizable()
                     .frame(width: geo.size.width * 2.7, height: geo.size.height)
                 VStack {
+                    Spacer(minLength: 60)
                     Text("\"\(vm.quote.quote)\"")
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.white)
+                        .minimumScaleFactor(0.5)
                         .padding()
                         .background(.black.opacity(0.5))
                         .clipShape(.rect(cornerRadius: 25))
                         .padding(.horizontal)
-                    
                     ZStack(alignment: .bottom) {
                         AsyncImage(url: vm.character.images[0]) { image in
                                image
@@ -38,7 +39,7 @@ struct QuoteView: View {
                                height: geo.size.height/1.8)
 
                         Text(vm.quote.character)
-                            .font(.title3)
+                            .font(.headline)
                             .foregroundStyle(.white)
                             .padding(15)
                             .frame(maxWidth: .infinity)
@@ -48,20 +49,21 @@ struct QuoteView: View {
                     .frame(width: geo.size.width/1.1,
                            height: geo.size.height/1.8)
                     .clipShape(.rect(cornerRadius: 50))
-                    
                     Button {
-                        
+                        Task {
+                            await vm.getData(from: isBreakingBadTab ? .breakingBad : .betterCallSaul)
+                        }
                     } label: {
                         Text("Get Random Quote")
                             .padding()
                             .font(.title2.bold())
                             .foregroundStyle(.white)
-                            .background(.green)
+                            .background(isBreakingBadTab ? .breakingBadGreen : .betterCallSaulBlue)
                             .buttonStyle(.bordered)
                             .clipShape(.capsule)
                     }
                     .padding(.top)
-                
+                Spacer()
                     
                     
                 }

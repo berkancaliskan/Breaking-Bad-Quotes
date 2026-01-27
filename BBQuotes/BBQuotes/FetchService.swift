@@ -73,14 +73,11 @@ struct FetchService {
             for death in deaths {
                 if death.character == character {
                     return death
-                } else {
-                    return nil
                 }
             }
+            return nil
         } else {
             throw FetchError.dataDecodingError
         }
-        
-        return nil
     }
 }

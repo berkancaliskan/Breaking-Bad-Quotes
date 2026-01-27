@@ -12,15 +12,11 @@ struct ContentView: View {
         VStack {
             TabView {
                 Tab("Breaking Bad" , systemImage: "tortoise.circle") {
-                    Image(.breakingBad)
-                        .resizable()
-                        .scaledToFit()
+                    QuoteView(isBreakingBadTab: true)
                 }
                 
                 Tab("Better Call Saul" , systemImage: "briefcase.circle"){
-                    Image(.betterCallSaul)
-                        .resizable()
-                        .scaledToFit()
+                    QuoteView(isBreakingBadTab: false)
                 }
             }
             
