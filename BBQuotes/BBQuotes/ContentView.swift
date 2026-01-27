@@ -10,12 +10,25 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            TabView {
+                Tab("Breaking Bad" , systemImage: "tortoise.circle") {
+                    Image(.breakingBad)
+                        .resizable()
+                        .scaledToFit()
+                }
+                
+                Tab("Better Call Saul" , systemImage: "briefcase.circle"){
+                    Image(.betterCallSaul)
+                        .resizable()
+                        .scaledToFit()
+                }
+            }
+            
+            .tint(.green)
+            
         }
-        .padding()
+        .onAppear {
+        }
     }
 }
 
