@@ -49,7 +49,7 @@ class QuoteViewModel {
         do {
             quote = try await service.fetchQuote(from: showType)
             character = try await service.fetchCharacter(quote.character)
-            death = try await service.fetchDeath(for: character.name)
+            character.death = try await service.fetchDeath(for: character.name)
             status = .success
         } catch {
             status = .failure(error: error)

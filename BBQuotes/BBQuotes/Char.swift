@@ -8,6 +8,11 @@
 import Foundation
 
 struct Char: Decodable {
+    
+    enum ShowType {
+        case breakingBad, betterCallSaul
+    }
+    
     let name: String
     let birthday: String
     let occupations: [String]

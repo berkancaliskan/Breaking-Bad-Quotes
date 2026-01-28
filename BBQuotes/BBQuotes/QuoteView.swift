@@ -10,7 +10,7 @@ import SwiftUI
 struct QuoteView: View {
     @State private var vm = QuoteViewModel()
     let isBreakingBadTab: Bool
-    
+    @State var showCharacterInfo: Bool = false
     var body: some View {
         GeometryReader { geo in
             ZStack {
@@ -19,36 +19,52 @@ struct QuoteView: View {
                     .frame(width: geo.size.width * 2.7, height: geo.size.height)
                 VStack {
                     Spacer(minLength: 60)
-                    Text("\"\(vm.quote.quote)\"")
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.white)
-                        .minimumScaleFactor(0.5)
-                        .padding()
-                        .background(.black.opacity(0.5))
-                        .clipShape(.rect(cornerRadius: 25))
-                        .padding(.horizontal)
-                    ZStack(alignment: .bottom) {
-                        AsyncImage(url: vm.character.images[0]) { image in
-                               image
-                                .resizable()
-                                .scaledToFill()
-                        } placeholder: {
-                            ProgressView()
+                    switch vm.status {
+                    case .notStarting:
+                        EmptyView()
+                    case .fetching:
+                        ProgressView()
+                            .scaleEffect(5)
+                    case .success:
+                        Text("\"\(vm.quote.quote)\"")
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.white)
+                            .minimumScaleFactor(0.5)
+                            .padding()
+                            .background(.black.opacity(0.5))
+                            .clipShape(.rect(cornerRadius: 25))
+                            .padding(.horizontal)
+                        
+                        ZStack(alignment: .bottom) {
+                            AsyncImage(url: vm.character.images[0]) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            } placeholder: {
+                                ProgressView()
+                            }
+                            .frame(width: geo.size.width/1.1,
+                                   height: geo.size.height/1.8)
+                            
+                            Text(vm.quote.character)
+                                .font(.headline)
+                                .foregroundStyle(.white)
+                                .padding(15)
+                                .frame(maxWidth: .infinity)
+                                .background(.ultraThinMaterial)
+                            
                         }
                         .frame(width: geo.size.width/1.1,
                                height: geo.size.height/1.8)
-
-                        Text(vm.quote.character)
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .padding(15)
-                            .frame(maxWidth: .infinity)
-                            .background(.ultraThinMaterial)
-                
+                        .clipShape(.rect(cornerRadius: 50))
+                        .onTapGesture {
+                            showCharacterInfo.toggle()
+                            
+                        }
+                    case .failure(let error):
+                        Text(error.localizedDescription)
                     }
-                    .frame(width: geo.size.width/1.1,
-                           height: geo.size.height/1.8)
-                    .clipShape(.rect(cornerRadius: 50))
+                    Spacer()
                     Button {
                         Task {
                             await vm.getData(from: isBreakingBadTab ? .breakingBad : .betterCallSaul)
@@ -62,16 +78,17 @@ struct QuoteView: View {
                             .buttonStyle(.bordered)
                             .clipShape(.capsule)
                     }
-                    .padding(.top)
-                Spacer()
-                    
-                    
+                    Spacer(minLength: 95)
                 }
                 .frame(width: geo.size.width)
             }
             .frame(width: geo.size.width, height: geo.size.height)
         }
         .ignoresSafeArea()
+        .sheet(isPresented: $showCharacterInfo) {
+            CharacterView(character: vm.character,
+                          showType: isBreakingBadTab ? .breakingBad : .betterCallSaul)
+        }
     }
 }
 

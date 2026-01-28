@@ -19,11 +19,7 @@ struct ContentView: View {
                     QuoteView(isBreakingBadTab: false)
                 }
             }
-            
-            .tint(.green)
-            
-        }
-        .onAppear {
+            .tint(.betterCallSaulBlue)
         }
     }
 }
