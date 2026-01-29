@@ -12,14 +12,16 @@ struct ContentView: View {
         VStack {
             TabView {
                 Tab("Breaking Bad" , systemImage: "tortoise.circle") {
-                    QuoteView(isBreakingBadTab: true)
+                    QuoteView(showType: .breakingBad)
                 }
-                
                 Tab("Better Call Saul" , systemImage: "briefcase.circle"){
-                    QuoteView(isBreakingBadTab: false)
+                    QuoteView(showType: .betterCallSaul)
+                }
+                Tab("El Camino" , systemImage: "car.circle"){
+                    QuoteView(showType: .elCamino)
                 }
             }
-            .tint(.betterCallSaulBlue)
+            .tint(.mint)
         }
     }
 }

@@ -19,6 +19,7 @@ struct FetchService {
     enum ShowType: String {
         case breakingBad = "Breaking+Bad"
         case betterCallSaul = "Better+Call+Saul"
+        case elCamino = "El+Camino"
     }
     
     //throws: An error when the operation cannot be completed
@@ -26,7 +27,7 @@ struct FetchService {
         let quotesURL = baseURL.appending(path: "quotes/random")
         let fetchURL = quotesURL.appending(queryItems: [URLQueryItem(name: "production", value: show.rawValue)])
         let (data, response) = try await URLSession.shared.data(from: fetchURL)
-        
+        print("Fetching from URL: \(fetchURL)")
         guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
             throw FetchError.badResponse
         }

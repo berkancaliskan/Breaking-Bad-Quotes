@@ -9,12 +9,17 @@ import SwiftUI
 
 struct QuoteView: View {
     @State private var vm = QuoteViewModel()
-    let isBreakingBadTab: Bool
+    let showType: Char.ShowType
     @State var showCharacterInfo: Bool = false
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                Image(isBreakingBadTab ? .breakingBad : .betterCallSaul)
+                let resource: ImageResource =   switch showType {
+                case .betterCallSaul: .betterCallSaul
+                case .breakingBad: .breakingBad
+                case .elCamino: .elCamino
+                }
+                Image(resource)
                     .resizable()
                     .frame(width: geo.size.width * 2.7, height: geo.size.height)
                 VStack {
@@ -67,14 +72,24 @@ struct QuoteView: View {
                     Spacer()
                     Button {
                         Task {
-                            await vm.getData(from: isBreakingBadTab ? .breakingBad : .betterCallSaul)
+                            let showDataType: FetchService.ShowType = switch showType {
+                            case .betterCallSaul: .betterCallSaul
+                            case .breakingBad: .breakingBad
+                            case .elCamino: .elCamino
+                            }
+                            await vm.getData(from: showDataType)
                         }
                     } label: {
+                        let color: Color =  switch showType {
+                        case .betterCallSaul: .betterCallSaulBlue
+                        case .breakingBad: .breakingBadGreen
+                        case .elCamino: .elCaminoRed
+                        }
                         Text("Get Random Quote")
                             .padding()
                             .font(.title2.bold())
                             .foregroundStyle(.white)
-                            .background(isBreakingBadTab ? .breakingBadGreen : .betterCallSaulBlue)
+                            .background(color)
                             .buttonStyle(.bordered)
                             .clipShape(.capsule)
                     }
@@ -87,11 +102,11 @@ struct QuoteView: View {
         .ignoresSafeArea()
         .sheet(isPresented: $showCharacterInfo) {
             CharacterView(character: vm.character,
-                          showType: isBreakingBadTab ? .breakingBad : .betterCallSaul)
+                          showType: self.showType)
         }
     }
 }
 
 #Preview {
-    QuoteView(isBreakingBadTab: true)
+    QuoteView(showType: .elCamino)
 }

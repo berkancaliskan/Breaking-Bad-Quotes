@@ -10,7 +10,7 @@ import Foundation
 struct Char: Decodable {
     
     enum ShowType {
-        case breakingBad, betterCallSaul
+        case breakingBad, betterCallSaul, elCamino
     }
     
     let name: String
