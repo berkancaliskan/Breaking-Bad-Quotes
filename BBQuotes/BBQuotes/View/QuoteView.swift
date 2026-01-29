@@ -11,15 +11,11 @@ struct QuoteView: View {
     @State private var vm = QuoteViewModel()
     let showType: Char.ShowType
     @State var showCharacterInfo: Bool = false
+    @State private var hasLoaded = false
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                let resource: ImageResource =   switch showType {
-                case .betterCallSaul: .betterCallSaul
-                case .breakingBad: .breakingBad
-                case .elCamino: .elCamino
-                }
-                Image(resource)
+                Image(ImageResource.getImage(showType))
                     .resizable()
                     .frame(width: geo.size.width * 2.7, height: geo.size.height)
                 VStack {
@@ -30,7 +26,7 @@ struct QuoteView: View {
                     case .fetching:
                         ProgressView()
                             .scaleEffect(5)
-                    case .success:
+                    case .successQuote:
                         Text("\"\(vm.quote.quote)\"")
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.white)
@@ -41,7 +37,8 @@ struct QuoteView: View {
                             .padding(.horizontal)
                         
                         ZStack(alignment: .bottom) {
-                            AsyncImage(url: vm.character.images[0]) { image in
+                            if let randomURL = vm.character.images.randomElement() {
+                            AsyncImage(url: randomURL) { image in
                                 image
                                     .resizable()
                                     .scaledToFill()
@@ -49,7 +46,13 @@ struct QuoteView: View {
                                 ProgressView()
                             }
                             .frame(width: geo.size.width/1.1,
-                                   height: geo.size.height/1.8)
+                                       height: geo.size.height/1.8)
+                            } else {
+                                Image(ImageResource.getImage(showType))
+                                    .frame(width: geo.size.width/1.1,
+                                               height: geo.size.height/1.8)
+                            }
+                                
                             
                             Text(vm.quote.character)
                                 .font(.headline)
@@ -64,34 +67,39 @@ struct QuoteView: View {
                         .clipShape(.rect(cornerRadius: 50))
                         .onTapGesture {
                             showCharacterInfo.toggle()
-                            
                         }
+                    case .successEpisode:
+                        EpisodeView(episode: vm.episode)
                     case .failure(let error):
                         Text(error.localizedDescription)
                     }
                     Spacer()
-                    Button {
-                        Task {
-                            let showDataType: FetchService.ShowType = switch showType {
-                            case .betterCallSaul: .betterCallSaul
-                            case .breakingBad: .breakingBad
-                            case .elCamino: .elCamino
+                    HStack {
+                        Button {
+                            Task {
+                                await vm.getQuoteData(from: getShowType())
                             }
-                            await vm.getData(from: showDataType)
+                        } label: {
+                            Text("Get Random\nQuote")
+                                .padding()
+                                .font(.title3.bold())
+                                .foregroundStyle(.white)
+                                .background(Color.getButtonColor(showType))
+                                .clipShape(.capsule)
                         }
-                    } label: {
-                        let color: Color =  switch showType {
-                        case .betterCallSaul: .betterCallSaulBlue
-                        case .breakingBad: .breakingBadGreen
-                        case .elCamino: .elCaminoRed
+                        Button {
+                            Task {
+                                await vm.getEpisodeData(from: getShowType())
+                            }
+                        } label: {
+                            Text("Get Random\nEpisode")
+                                .padding()
+                                .font(.title3.bold())
+                                .foregroundStyle(.white)
+                                .background(Color.getButtonColor(showType))
+                                .clipShape(.capsule)
                         }
-                        Text("Get Random Quote")
-                            .padding()
-                            .font(.title2.bold())
-                            .foregroundStyle(.white)
-                            .background(color)
-                            .buttonStyle(.bordered)
-                            .clipShape(.capsule)
+                        
                     }
                     Spacer(minLength: 95)
                 }
@@ -104,9 +112,26 @@ struct QuoteView: View {
             CharacterView(character: vm.character,
                           showType: self.showType)
         }
+        .onAppear {
+            Task {
+                guard !hasLoaded else { return }
+                hasLoaded = true
+                await vm.getQuoteData(from: getShowType())
+            }
+        }
     }
 }
 
 #Preview {
     QuoteView(showType: .elCamino)
+}
+
+extension QuoteView {
+    func getShowType() -> FetchService.ShowType {
+        return switch showType {
+        case .betterCallSaul: .betterCallSaul
+        case .breakingBad: .breakingBad
+        case .elCamino: .elCamino
+        }
+    }
 }

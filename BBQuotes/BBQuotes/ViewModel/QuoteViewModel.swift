@@ -13,7 +13,8 @@ class QuoteViewModel {
     enum FetchStatus {
         case notStarting
         case fetching
-        case success
+        case successQuote
+        case successEpisode
         case failure(error: Error)
     }
     
@@ -22,6 +23,7 @@ class QuoteViewModel {
     var quote: Quote
     var character: Char
     var death: Death?
+    var episode: Episode
     
     init() {
         let decoder = JSONDecoder()
@@ -42,15 +44,33 @@ class QuoteViewModel {
         } else {
             character = Char.mockWalterWhite
         }
+        
+        if let episodeURL = Bundle.main.url(forResource: "sampleepisode", withExtension: "json"),
+           let episodeData = try? Data(contentsOf: episodeURL),
+           let decodedEpisode = try? decoder.decode(Episode.self, from: episodeData) {
+            episode = decodedEpisode
+        } else {
+            episode = Episode.mockEpisode
+        }
     }
     
-    func getData(from showType: FetchService.ShowType) async {
+    func getQuoteData(from showType: FetchService.ShowType) async {
         status = .fetching
         do {
             quote = try await service.fetchQuote(from: showType)
             character = try await service.fetchCharacter(quote.character)
             character.death = try await service.fetchDeath(for: character.name)
-            status = .success
+            status = .successQuote
+        } catch {
+            status = .failure(error: error)
+        }
+    }
+    
+    func getEpisodeData(from showType: FetchService.ShowType) async {
+        status = .fetching
+        do {
+            episode = try await service.fetchEpisode(from: showType)
+            status = .successEpisode
         } catch {
             status = .failure(error: error)
         }

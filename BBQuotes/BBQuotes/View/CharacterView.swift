@@ -14,7 +14,7 @@ struct CharacterView: View {
         GeometryReader { geo in
             ScrollViewReader { proxy in
                 ZStack(alignment: .top) {
-                    Image(showType == .breakingBad ? .breakingBad : .betterCallSaul)
+                    Image(ImageResource.getImage(showType))
                         .resizable()
                         .scaledToFit()
                         .frame(width: geo.size.width)
